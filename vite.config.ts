@@ -8,7 +8,8 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
-    // 移除 base: './'，使用默认的 '/'，这对 Vercel 部署更友好
+    // 修改为 './'，这样打包后的文件可以通过相对路径访问，不依赖根域名
+    base: './',
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
