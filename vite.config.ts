@@ -1,15 +1,23 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  // 关键配置：使用相对路径，这样打包后的 index.html 可以直接在任何文件夹打开
-  // 注意：某些路由功能在纯本地 file:// 协议下可能会受限，但对于展示型 Demo 通常没问题
-  base: './', 
-  build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
-    sourcemap: false,
+export default defineConfig(({ mode }) => {
+  // 加载环境变量，第三个参数 '' 表示加载所有变量，不仅仅是 VITE_ 开头的
+  // Fix: cast process to any to avoid TS error "Property 'cwd' does not exist on type 'Process'"
+  const env = loadEnv(mode, (process as any).cwd(), '');
+
+  return {
+    plugins: [react()],
+    base: './', 
+    build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
+      sourcemap: false,
+    },
+    // 关键修复：定义 process.env.API_KEY，防止浏览器报 "process is not defined" 错误
+    define: {
+      'process.env.API_KEY': JSON.stringify(env.API_KEY)
+    }
   }
 })
