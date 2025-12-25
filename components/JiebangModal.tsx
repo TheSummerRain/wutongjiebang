@@ -59,7 +59,7 @@ export const JiebangModal: React.FC<JiebangModalProps> = ({ isOpen, onClose, req
                             </Button>
                         </div>
                         <p className="text-xs text-slate-500 max-w-lg">
-                            基于 Gemini 3.0 大模型，深度分析需求文档，为您快速生成结构化的技术应答方案提纲（包含架构设计、关键技术栈、核心优势等），助您提升中标率。
+                            基于 DeepSeek-V3 大模型，深度分析需求文档，为您快速生成结构化的技术应答方案提纲（包含架构设计、关键技术栈、核心优势等），助您提升中标率。
                         </p>
                     </div>
                 </div>
