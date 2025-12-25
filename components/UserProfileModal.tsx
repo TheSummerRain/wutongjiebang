@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './Button';
 
 interface UserProfileModalProps {
@@ -10,10 +10,28 @@ interface UserProfileModalProps {
 export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose, userRole }) => {
   const [activeTab, setActiveTab] = useState<'PROFILE' | 'AI' | 'SYSTEM'>('PROFILE');
   
-  // AI Config Mock State
-  const [aiModel, setAiModel] = useState('GEMINI_3_PRO');
-  const [temperature, setTemperature] = useState(0.7);
-  const [useSearch, setUseSearch] = useState(true);
+  // AI Config State
+  const [aiModel, setAiModel] = useState('deepseek-chat');
+  const [apiKey, setApiKey] = useState('');
+  const [temperature, setTemperature] = useState(1.0);
+  const [useSearch, setUseSearch] = useState(false);
+
+  // Load settings from localStorage on open
+  useEffect(() => {
+    if (isOpen) {
+        const storedKey = localStorage.getItem('deepseek_api_key') || '';
+        const storedModel = localStorage.getItem('deepseek_model') || 'deepseek-chat';
+        setApiKey(storedKey);
+        setAiModel(storedModel);
+    }
+  }, [isOpen]);
+
+  const handleSave = () => {
+      localStorage.setItem('deepseek_api_key', apiKey);
+      localStorage.setItem('deepseek_model', aiModel);
+      alert('AI 配置已保存！系统将优先使用您配置的 DeepSeek 模型。');
+      onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -89,21 +107,36 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
                 {activeTab === 'AI' && (
                     <div className="space-y-6">
                          <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                             <h3 className="text-lg font-bold text-gray-900">AI 辅助增强配置</h3>
-                             <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded">实验性功能</span>
+                             <h3 className="text-lg font-bold text-gray-900">DeepSeek 服务配置</h3>
+                             <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded">深度求索</span>
+                         </div>
+
+                         <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-xs text-blue-800 mb-4">
+                             <p className="font-bold mb-1">配置说明：</p>
+                             <p>本平台已升级支持 DeepSeek 系列模型。请在下方输入您的 API Key。Key 仅保存在您本地浏览器的 LocalStorage 中，不会上传至服务器。</p>
+                         </div>
+
+                         <div>
+                            <label className="block text-sm font-bold text-gray-800 mb-2">API Key <span className="text-red-500">*</span></label>
+                            <input 
+                                type="password" 
+                                value={apiKey}
+                                onChange={(e) => setApiKey(e.target.value)}
+                                placeholder="sk-..."
+                                className="w-full p-3 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 font-mono"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">请前往 <a href="https://platform.deepseek.com/" target="_blank" className="text-blue-500 hover:underline">DeepSeek 开放平台</a> 获取。</p>
                          </div>
                          
                          <div>
-                            <label className="block text-sm font-bold text-gray-800 mb-2">主模型选择 (LLM Model)</label>
-                            <p className="text-xs text-gray-500 mb-2">用于处理需求生成、方案摘要提取和对话辅助。</p>
+                            <label className="block text-sm font-bold text-gray-800 mb-2">模型选择 (Model)</label>
                             <select 
                                 value={aiModel}
                                 onChange={(e) => setAiModel(e.target.value)}
                                 className="w-full p-3 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500"
                             >
-                                <option value="GEMINI_3_PRO">Gemini 3.0 Pro (推荐 - 推理能力最强)</option>
-                                <option value="GEMINI_3_FLASH">Gemini 3.0 Flash (极速响应)</option>
-                                <option value="GEMINI_2_5_FLASH">Gemini 2.5 Flash</option>
+                                <option value="deepseek-chat">DeepSeek-V3 (推荐 - 综合能力强)</option>
+                                <option value="deepseek-reasoner">DeepSeek-R1 (推理增强 - 适合复杂逻辑)</option>
                             </select>
                          </div>
 
@@ -115,29 +148,17 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
                             <input 
                                 type="range" 
                                 min="0" 
-                                max="1" 
+                                max="2" 
                                 step="0.1"
                                 value={temperature}
                                 onChange={(e) => setTemperature(parseFloat(e.target.value))}
                                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                             />
                             <div className="flex justify-between text-xs text-gray-400 mt-1">
-                                <span>严谨精确</span>
-                                <span>创意发散</span>
+                                <span>严谨精确 (0.0)</span>
+                                <span>DeepSeek 默认 (1.0~1.3)</span>
+                                <span>创意发散 (2.0)</span>
                             </div>
-                         </div>
-
-                         <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex items-start gap-3">
-                             <input 
-                                type="checkbox" 
-                                checked={useSearch}
-                                onChange={(e) => setUseSearch(e.target.checked)}
-                                className="mt-1 w-4 h-4 text-blue-600 rounded"
-                             />
-                             <div>
-                                 <div className="text-sm font-medium text-gray-900">启用联网搜索增强 (Grounding)</div>
-                                 <div className="text-xs text-gray-500 mt-1">允许模型访问最新的行业动态和技术标准（如 3GPP 最新协议），以提供更准确的建议。</div>
-                             </div>
                          </div>
                     </div>
                 )}
@@ -177,7 +198,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
         {/* Footer */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
             <Button variant="ghost" onClick={onClose}>关闭</Button>
-            <Button onClick={() => { alert('设置已保存'); onClose(); }}>保存更改</Button>
+            <Button onClick={handleSave}>保存更改</Button>
         </div>
       </div>
     </div>

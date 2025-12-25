@@ -209,13 +209,12 @@ const App = () => {
       );
   }
 
-  // Console View
+  // Console View Content Switcher
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard userRole={userRole} />;
       case 'marketplace':
-        // Pass global requirements to Marketplace so updates are reflected
         return (
             <Marketplace 
                 onSelectRequirement={setSelectedReq} 
@@ -259,18 +258,11 @@ const App = () => {
             onClose={() => setIsNotificationOpen(false)} 
         />
 
-        {/* Modals */}
+        {/* Modals - Rendered in specific order for stacking context */}
         <PublishModal 
             isOpen={isPublishModalOpen} 
             onClose={() => setIsPublishModalOpen(false)}
             onPublish={handlePublish}
-        />
-
-        <JiebangModal 
-            isOpen={isJiebangModalOpen}
-            onClose={() => setIsJiebangModalOpen(false)}
-            requirement={selectedReq}
-            onSubmit={submitReveal}
         />
 
         <SubscriptionModal 
@@ -285,7 +277,7 @@ const App = () => {
             userRole={userRole}
         />
 
-        {/* Detail Modal Overlay for Console */}
+        {/* 1. Detail Modal Overlay (Console) - Layer 1 */}
         {selectedReq && (
            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
               <div 
@@ -353,10 +345,10 @@ const App = () => {
                                 </div>
                             </div>
                             {userRole === UserRole.SPECIALIZED && selectedReq.status === 'OPEN' && (
-                                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg">
+                                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg transform transition-transform hover:scale-[1.02]">
                                     <h4 className="font-bold text-lg mb-2">意向揭榜</h4>
                                     <p className="text-blue-100 text-sm mb-4">上传方案前，请确保已阅读最新的保密协议。</p>
-                                    <Button onClick={handleReveal} className="w-full bg-white text-blue-700 hover:bg-blue-50 border-none">
+                                    <Button onClick={handleReveal} className="w-full bg-white text-blue-700 hover:bg-blue-50 border-none font-bold">
                                         立即揭榜申报
                                     </Button>
                                 </div>
@@ -367,6 +359,14 @@ const App = () => {
               </div>
            </div>
         )}
+        
+        {/* 2. Jiebang Modal - Layer 2 (Must be after Detail Modal to sit on top) */}
+        <JiebangModal 
+            isOpen={isJiebangModalOpen}
+            onClose={() => setIsJiebangModalOpen(false)}
+            requirement={selectedReq}
+            onSubmit={submitReveal}
+        />
     </Layout>
   );
 };
