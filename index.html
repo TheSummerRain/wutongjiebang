@@ -17,7 +17,7 @@
         }
       };
     </script>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@^19.2.3",
@@ -32,7 +32,7 @@
 </head>
   <body>
     <div id="root"></div>
-    <!-- 修复：文件在根目录，路径改为 /index.tsx，去掉 /src/ 前缀 -->
-    <script type="module" src="/index.tsx"></script>
+    <!-- 修复：去掉 / 前缀，使用相对路径引用 -->
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>

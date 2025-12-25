@@ -5,12 +5,53 @@ const apiKey = process.env.API_KEY || '';
 // Helper to check if API key exists
 const isAiAvailable = () => !!apiKey;
 
+// --- MOCK DATA FOR OFFLINE DEMO ---
+const MOCK_DRAFT = `【智能生成的项目需求草稿】
+
+1. 项目背景
+随着数字化转型的深入，当前业务系统在数据处理时效性和智能化程度方面已难以满足省公司业务高速增长的需求。为响应集团“降本增效”号召，亟需引入前沿技术对现有架构进行升级改造。
+
+2. 核心建设目标
+构建一套高可用、高并发、智能化的综合管理平台。重点实现数据全链路实时监控，打破数据孤岛，提升跨部门协同效率 40% 以上，并确保系统具备金融级的安全防护能力。
+
+3. 关键技术指标要求
+- 系统平均响应时间 < 200ms
+- 支持并发用户数 > 50,000
+- 数据处理实时性达到秒级
+- 需全面适配国产化软硬件环境（信创要求）`;
+
+const MOCK_OUTLINE = `【智能生成的方案提纲】
+
+1. 总体架构设计思路
+本方案采用“云边端”协同的现代化架构。底层依托中国移动云底座，中间层构建通用能力中台（包含AI中台与数据中台），上层通过微服务架构快速支撑多变的业务场景，确保系统的弹性伸缩能力。
+
+2. 拟采用的关键技术栈
+- 后端架构：Spring Cloud Alibaba (微服务) + Kubernetes (容器编排)
+- 前端交互：React + TypeScript + ECharts (可视化)
+- 智能引擎：基于 PyTorch 的私有化大模型部署
+- 数据存储：OceanBase (关系型) + Redis (缓存) + ClickHouse (分析)
+
+3. 方案核心优势（为什么选择我们？）
+- 全网经验复用：基于我们在广东移动、浙江移动的类似落地经验，可降低 50% 的试错成本。
+- 自主可控：核心代码 100% 自主研发，完全符合集团信创安全合规要求。
+- 交付承诺：拥有成建制的实施团队，承诺 3 个月内完成系统初验。`;
+
+const MOCK_ANALYSIS = {
+    score: 88,
+    summary: "该项目涉及高并发与大数据实时处理，技术架构复杂度较高，建议重点关注数据一致性与系统稳定性。"
+};
+// ----------------------------------
+
 /**
  * Generates a professional requirement description based on a short topic.
  * Used by Provincial Companies.
  */
 export const generateRequirementDraft = async (topic: string, constraints: string): Promise<string> => {
-  if (!isAiAvailable()) return "AI服务不可用：请配置 API_KEY。";
+  // 即使没有 Key 或者网络不通，也返回模拟数据，确保演示流程顺畅
+  if (!isAiAvailable()) {
+      console.warn("API Key missing, using mock data.");
+      return MOCK_DRAFT;
+  }
 
   const ai = new GoogleGenAI({ apiKey });
   
@@ -30,10 +71,11 @@ export const generateRequirementDraft = async (topic: string, constraints: strin
       3. 关键技术指标要求
       字数控制在300字以内。`,
     });
-    return response.text || "生成草稿失败。";
+    return response.text || MOCK_DRAFT;
   } catch (error) {
-    console.error("Gemini Error:", error);
-    return "内容生成出错，请重试。";
+    console.error("Gemini Error (Falling back to mock):", error);
+    // 网络错误（如国内无法连接）时，返回模拟数据
+    return MOCK_DRAFT;
   }
 };
 
@@ -42,7 +84,7 @@ export const generateRequirementDraft = async (topic: string, constraints: strin
  * Used by Specialized Companies.
  */
 export const generateSolutionOutline = async (requirementDesc: string): Promise<string> => {
-  if (!isAiAvailable()) return "AI服务不可用：请配置 API_KEY。";
+  if (!isAiAvailable()) return MOCK_OUTLINE;
 
   const ai = new GoogleGenAI({ apiKey });
 
@@ -61,16 +103,15 @@ export const generateSolutionOutline = async (requirementDesc: string): Promise<
       
       保持简洁，使用要点形式。`,
     });
-    return response.text || "生成提纲失败。";
+    return response.text || MOCK_OUTLINE;
   } catch (error) {
-    console.error("Gemini Error:", error);
-    return "生成方案提纲出错。";
+    console.error("Gemini Error (Falling back to mock):", error);
+    return MOCK_OUTLINE;
   }
 };
 
 /**
  * Interactive Requirement refinement.
- * Takes the chat history and current fields, returns updated fields.
  */
 export const refineRequirementFromChat = async (
     history: string[], 
@@ -109,24 +150,28 @@ export const refineRequirementFromChat = async (
  * Generates a follow-up question to guide the user.
  */
 export const generateFollowUpQuestion = async (currentDraft: any): Promise<string> => {
-    if (!isAiAvailable()) return "请继续补充您的需求细节。";
+    if (!isAiAvailable()) return "请您继续补充项目的预算范围或交付时间要求。";
     
     const ai = new GoogleGenAI({ apiKey });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `基于当前的项目草稿: ${JSON.stringify(currentDraft)}
-        作为一名立项审核专家，请向用户提出*一个*最关键的缺失问题，引导用户完善需求。
-        例如：如果缺少预算，就问预算；如果缺少技术指标，就问具体指标。
-        保持简短，像聊天一样。`,
-    });
-    return response.text || "还有其他补充吗？";
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-3-flash-preview',
+            contents: `基于当前的项目草稿: ${JSON.stringify(currentDraft)}
+            作为一名立项审核专家，请向用户提出*一个*最关键的缺失问题，引导用户完善需求。
+            例如：如果缺少预算，就问预算；如果缺少技术指标，就问具体指标。
+            保持简短，像聊天一样。`,
+        });
+        return response.text || "请问该项目的预计启动时间和交付截止日期是什么时候？";
+    } catch (e) {
+        return "请问该项目的核心技术指标有哪些？";
+    }
 }
 
 /**
- * analyzes a requirement and gives a complexity score and quick summary.
+ * analyzes a requirement.
  */
 export const analyzeRequirement = async (description: string): Promise<{score: number, summary: string}> => {
-   if (!isAiAvailable()) return { score: 0, summary: "AI服务暂不可用" };
+   if (!isAiAvailable()) return MOCK_ANALYSIS;
 
    const ai = new GoogleGenAI({ apiKey });
    try {
@@ -145,6 +190,6 @@ export const analyzeRequirement = async (description: string): Promise<{score: n
       return JSON.parse(text);
    } catch (e) {
        console.error(e);
-       return { score: 50, summary: "分析失败" };
+       return MOCK_ANALYSIS;
    }
 }

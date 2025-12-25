@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
-    // 修改为 './'，这样打包后的文件可以通过相对路径访问，不依赖根域名
+    // 关键配置：使用相对路径，支持本地文件系统部署
     base: './',
     build: {
       outDir: 'dist',
