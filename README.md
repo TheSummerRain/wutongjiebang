@@ -1,20 +1,93 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 中国移动 · 梧桐“揭榜挂帅”科创平台
 
-# Run and deploy your AI Studio app
+## 项目简介 (Project Overview)
 
-This contains everything you need to run your app locally.
+本项目是为中国移动集团量身打造的内部科技创新资源配置平台。平台旨在落实集团“两个新型”战略，通过“揭榜挂帅”的市场化机制，打通省公司（需求方）与专业公司/研究院（供给方）之间的信息壁垒。
 
-View your app in AI Studio: https://ai.studio/apps/drive/1eyiwTlLbcEk8x_aQWUNzA68h8FyvuaaC
+核心目标：**打破烟囱式开发，实现能力资产的“一地创新，全网复用”。**
 
-## Run Locally
+## 核心功能 (Key Features)
 
-**Prerequisites:**  Node.js
+### 1. 门户大厅 (Portal)
+*   **战略战新赛道布局**：聚焦 AI+、算力网络、6G、低空经济等集团战略方向，直观展示重点攻关领域。
+*   **成果展示与荣誉榜**：展示优秀落地案例、各单位创新积分排名及合作伙伴红黑榜。
+*   **政策指引**：集成集团最新科创管理办法、经费管理及知识产权归属指引。
 
+### 2. 项目工作台 (Console)
+平台支持基于角色的双视图切换：
+*   **省公司视图 (发榜方)**：
+    *   **AI 智能立项**：内置“梧桐 AI 助手”，通过对话式交互辅助起草专业的立项需求书，自动补全技术指标与预算建议。
+    *   **全流程管控**：覆盖草稿、审批、发榜、选标、交付、验收全链路。
+*   **专业公司视图 (揭榜方)**：
+    *   **商机挖掘**：基于标签画像的智能商机推荐。
+    *   **AI 方案助手**：一键分析需求，辅助生成结构化的技术应答提纲，提升申报效率。
+    *   **交付管理**：里程碑进度汇报与资金管理。
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 3. 数据驾驶舱 (Dashboard)
+*   **效能评估**：实时计算创新投入产出比 (ROI) 与成果复用率。
+*   **资源监控**：研发人力饱和度预警与资金执行进度追踪。
+
+### 4. 能力资产中心 (Capability Store)
+*   沉淀模型、API、数据集、报告等高价值资产，支持全网检索与调用，实现资产货币化与积分激励。
+
+## 技术栈 (Tech Stack)
+
+*   **前端框架**: React 18
+*   **构建工具**: Vite
+*   **开发语言**: TypeScript
+*   **样式库**: Tailwind CSS
+*   **智能引擎**: 集成内部大语言模型服务 (LLM Service)
+
+## 本地部署与运行指南
+
+### 1. 环境准备
+确保您的本地环境已安装 Node.js (建议 v18 或更高版本)。
+
+### 2. 获取代码与安装
+```bash
+# 解压项目包或克隆代码仓库
+cd wutong-jiebang
+
+# 安装项目依赖
+npm install
+```
+
+### 3. 配置智能服务密钥
+本项目依赖 AI 能力实现智能辅助功能（如智能立项、方案生成）。
+*   请确保运行环境中配置了 `API_KEY`。
+*   该密钥用于连接后端的推理服务，请联系平台管理员获取授权。
+
+### 4. 启动本地服务
+```bash
+# 启动开发服务器
+npm run dev
+```
+启动成功后，浏览器访问 `http://localhost:5173` 即可体验完整功能。
+
+### 5. 构建生产版本
+如需打包部署到内网服务器或生成离线演示包：
+```bash
+npm run build
+```
+构建产物将输出至 `dist` 目录。您可以直接分发该目录，或将其部署至 Nginx/Tomcat 服务器。
+
+## 目录结构说明
+
+```
+├── src/
+│   ├── components/     # 业务组件 (工作台、弹窗、图表等)
+│   ├── services/       # 业务逻辑服务 (AI 接口封装)
+│   ├── types.ts        # TypeScript 类型定义
+│   ├── App.tsx         # 根组件与路由逻辑
+│   └── main.tsx        # 入口文件
+├── public/             # 静态资源
+├── index.html          # HTML 模板
+└── vite.config.ts      # Vite 构建配置
+```
+
+## 浏览器支持
+
+推荐使用 Chrome 90+、Edge 90+ 或 Firefox 88+ 以获得最佳体验。
+
+---
+© 2024 中国移动通信集团有限公司 · 内部开源项目
